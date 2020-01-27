@@ -1,0 +1,22 @@
+
+
+Importing file: C:\Users\Administrator\IBM\ACET11\workspace\MQsoap\mq.wsdl
+
+The WSDL import will proceed with bindings mqSOAP.
+Creating wsdl schema document for file:///C:/Users/Administrator/IBM/ACET11/workspace/MQsoap/mq.wsdl.
+Parsing wsdl binding {http://www.example.org/mq/}mqSOAP.
+Parsing wsdl binding input NewOperation.
+Parsing wsdl binding output NewOperation.
+Processing doc style for operation NewOperation.
+Populating WSDL schema mq.xsd.
+Creating file mq.xsd in the workspace.
+Creating file mq_InlineSchema1.xsd in the workspace.
+Copying source WSDL mq.wsdl to mq.wsdl.
+
+Elapsed time processing this message definition file: 0.149 seconds
+Number of warnings for this message definition file: 0
+
+
+Number of files processed: 1
+
+
