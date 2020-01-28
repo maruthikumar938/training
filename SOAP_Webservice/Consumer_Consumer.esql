@@ -9,7 +9,7 @@ CREATE COMPUTE MODULE Consumer_Consumer
 		RETURN TRUE;
 	END;
 
-	
+	---
 
 	CREATE PROCEDURE CopyEntireMessage() BEGIN
 		DECLARE init,rc BOOLEAN;
