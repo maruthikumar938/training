@@ -1,0 +1,15 @@
+
+
+CREATE COMPUTE MODULE Consumer_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot.XMLNSC.AdditionResponse.c = InputRoot.SOAP.Body.ns:AdditionResponse.c;
+	END;
+END MODULE;

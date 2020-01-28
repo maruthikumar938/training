@@ -1,0 +1,19 @@
+
+
+CREATE COMPUTE MODULE Provider_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	
+		CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		DECLARE a,b,c INTEGER;
+		SET a = InputRoot.SOAP.Body.ns:Addition.a;
+		SET b = InputRoot.SOAP.Body.ns:Addition.b;
+		SET c = a+b;
+		SET OutputRoot.SOAP.Body.ns:AdditionResponse.c = c;
+	END;
+END MODULE;
