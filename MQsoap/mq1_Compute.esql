@@ -5,6 +5,7 @@ CREATE COMPUTE MODULE mq1_Compute
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		-- CALL CopyMessageHeaders();
+		--maruthi 
 		 CALL CopyEntireMessage();
 		RETURN TRUE;
 	END;
