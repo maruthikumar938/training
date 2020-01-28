@@ -5,6 +5,7 @@ CREATE COMPUTE MODULE sam4_Compute
 	BEGIN
 		-- CALL CopyMessageHeaders();
 		-- CALL CopyEntireMessage();
+		--modified code
 		RETURN TRUE;
 	END;
 
