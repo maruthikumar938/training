@@ -1,0 +1,18 @@
+
+
+CREATE COMPUTE MODULE ADDITION_FLOW_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	
+		 CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		DECLARE A,B,C INTEGER ;
+		SET A = InputRoot.XMLNSC.ns:Add.ns:intA;
+		SET B = InputRoot.XMLNSC.ns:Add.ns:intB;
+		SET C = A + B ;
+		SET OutputRoot.XMLNSC.ns:AddResponse.ns:AddResult = C;
+	END;
+END MODULE;
