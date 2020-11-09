@@ -1,32 +1,78 @@
-
+PATH log4j;
+DECLARE Config_File EXTERNAL CHARACTER 'C:\LOG4J\samples\brokerlog.xml'; 
 
 CREATE COMPUTE MODULE QUERY_PARAMS_Compute
+	
+DECLARE rc BOOLEAN;
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
-
+         CALL initLog(Config_File)INTO rc;  
 		 CALL CopyEntireMessage();
 		RETURN TRUE;
 	END;
 
 	CREATE PROCEDURE CopyEntireMessage() BEGIN
 	     DECLARE Operation,status CHARACTER;
-	      
-	     DECLARE id INTEGER;
+	 
+	   --   DECLARE id INTEGER;
 	     DECLARE r1 ROW ;
-	     DECLARE var CHARACTER ;
+	     DECLARE ref REFERENCE TO InputLocalEnvironment.HTTP.Input.QueryString ;
 	     -- SET var = CAST(InputRoot.BLOB.BLOB AS CHARACTER);
 --	     SET status= InputLocalEnvironment.HTTP.Input.QueryString.status;
 --	    SET id = InputLocalEnvironment.HTTP.Input.QueryString.id;
-	    --   SET Operation = FIELDNAME(InputLocalEnvironment.HTTP.Input.QueryString.*[<]);
-		--SET  id = OutputLocalEnvironment.Destination.HTTP.QueryString.*;  
+	   SET Operation = FIELDNAME(InputLocalEnvironment.HTTP.Input.QueryString.*[<]);
+	 --  SET val =  'InputLocalEnvironment.HTTP.Input.QueryString.'|| Operation ;
+		-- SET  val2 = FIELDVALUE(val);    
 	
 			
-	-- IF Operation = 'id' THEN
-			SET r1.values[] = SELECT * FROM Database.TABLE1  AS  A WHERE A.ID =id ;
-	-- ELSEIF Operation ='status' THEN 
-			SET r1.values[] = SELECT * FROM Database.TABLE1  AS  A WHERE A.STATUS =id ;
-	-- END IF;
+	IF Operation = 'id' THEN
+			SET r1.values[] = SELECT * FROM Database.QUEUE_TABLE  AS  A WHERE A.ID =ref.id ;
+			SET OutputRoot.JSON.Data.Response = r1;
+	 ELSEIF Operation ='name' THEN 
+			SET r1.values[] = SELECT * FROM Database.QUEUE_TABLE  AS  A WHERE A.NAME =ref.name;
+				SET OutputRoot.JSON.Data.Response = r1;
+	END IF;
 --		SET r1.values[] = SELECT * FROM Database.TABLE1  AS  A WHERE A.ID =id ;
 
+               --------------------DBLOG------------------------
+
+ DECLARE ID BLOB;
+  DECLARE status1 CHARACTER;
+	  DECLARE req_time DATE CURRENT_DATE ;
+	    
+	  SET ID  = InputLocalEnvironment.Destination.HTTP.RequestIdentifier; 
+      -- SET REQUEST_ID = CAST(ID AS CHAR);
+	  SET Environment.req_time = CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyyMMdd:HH:mm:SS'); 
+	  IF OutputRoot.XMLNSC.Response = 'Error Occured'  THEN
+	  	
+	  SET status1 = 'FAILURE';
+	  
+	  DECLARE req CHARACTER CAST(ASBITSTREAM(InputRoot.XMLNSC CCSID InputRoot.Properties.CodedCharSetId) AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+	  DECLARE response CHARACTER CAST(ASBITSTREAM(OutputRoot CCSID InputRoot.Properties.CodedCharSetId) AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId); 
+	  CALL DB_PROCEDURE(CAST(ID AS CHARACTER),req,status1,response,req_time);    
+	    	 
+	  ELSE
+	  	
+	  SET status1 = 'SUCCESS'; 
+	  
+	  DECLARE req CHARACTER CAST(ASBITSTREAM(InputRoot.XMLNSC CCSID InputRoot.Properties.CodedCharSetId) AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+	  DECLARE response CHARACTER CAST(ASBITSTREAM(OutputRoot CCSID InputRoot.Properties.CodedCharSetId) AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+      CALL DB_PROCEDURE(CAST(ID AS CHARACTER),req,status1,response,req_time);   	
+	  END IF;    
+                                      --------LOG4J----------------
+
+    CALL writerToLogFile(MessageFlowLabel,'Log','INFO','========================== REQUEST RECEIVED===============')INTO rc;
+
+      DECLARE data CHARACTER CAST(ASBITSTREAM(InputRoot CCSID InputRoot.Properties.CodedCharSetId) AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+      CALL writerToLogFile(MessageFlowLabel,'Log','INFO',data) INTO rc; 
+
+   CALL writerToLogFile(MessageFlowLabel,'Log','INFO','========================== RESPONCE RECEIVED===============')INTO rc; 
+    DECLARE responce CHARACTER CAST(ASBITSTREAM(OutputRoot CCSID InputRoot.Properties.CodedCharSetId) AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId);
+    CALL writerToLogFile(MessageFlowLabel,'Log','INFO',responce) INTO rc; 
 	END;
 END MODULE;
+
+ CREATE PROCEDURE DB_PROCEDURE(IN REQUEST_ID CHARACTER,IN REQUEST CHARACTER,IN STATUS CHARACTER, IN RESPONSE CHARACTER, IN REQUEST_TIME DATE)  
+	LANGUAGE DATABASE 
+	EXTERNAL NAME "DBLOG_PROCEDURE";
+   

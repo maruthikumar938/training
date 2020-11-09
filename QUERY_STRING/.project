@@ -3,6 +3,8 @@
 	<name>QUERY_STRING</name>
 	<comment></comment>
 	<projects>
+		<project>Exception_Handling</project>
+		<project>LOG4J_LIBRARY</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
